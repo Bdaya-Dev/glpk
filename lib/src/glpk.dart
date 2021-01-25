@@ -16,6 +16,24 @@ class LinearProblem {
     required this.equationConstraints,
     required this.variableConstraints,
   });
+  LinearProblem.matrix(
+      {required this.name,
+      required List<String> varNames,
+      required List<String> equationNames,
+      required List<List<double>> terms,
+      required this.equationConstraints,
+      required this.variableConstraints})
+      : optimization = LinearEquation(name, [
+          for (var n = 0; n < varNames.length; n++)
+            LinearTerm(terms[0][n], varNames[n])
+        ]),
+        equations = [
+          for (var i = 1; i < equationNames.length; i++)
+            LinearEquation(name, [
+              for (var n = 0; n < varNames.length; n++)
+                LinearTerm(terms[i][n], varNames[n])
+            ])
+        ];
   final String name;
   final List<LinearEquation> equations;
   final List<LinearConstraint> equationConstraints;
