@@ -1,3 +1,7 @@
+## 0.1.0-nullsafety.4
+
+- Relax constraints on parsing
+  
 ## 0.1.0-nullsafety.3
 
 - Add basic parser

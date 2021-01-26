@@ -32,16 +32,17 @@ class LinearProgramDefinition extends GrammarDefinition {
           variableConstraints: l[8]));
 
   Parser<LinearEquation> optimization() => ref(linearEquation).cast();
-  Parser<LinearEquation> linearEquation() => (letter('lhs').plus().flatten() &
-          char('=').surroundedBy(ref(ws).star()) &
-          ref(linearTerm)
-              .separatedBy(
-                  (char('+').surroundedBy(ref(ws).plus()).flatten() |
-                      ref(ws).plus().flatten()),
-                  includeSeparators: false)
-              .castList<LinearTerm>())
-      .map((l) => LinearEquation(l[0], l[2]))
-      .debug();
+  Parser<LinearEquation> linearEquation() =>
+      ((letter('var') & word('var').star()).flatten() &
+              char('=').surroundedBy(ref(ws).star()) &
+              ref(linearTerm)
+                  .separatedBy(
+                      (char('+').surroundedBy(ref(ws).plus()).flatten() |
+                          ref(ws).plus().flatten()),
+                      includeSeparators: false)
+                  .castList<LinearTerm>())
+          .map((l) => LinearEquation(l[0], l[2]))
+          .debug();
   Parser<LinearTerm> linearTerm() => (doubleParser('coefficient') &
           (char('*').surroundedBy(ref(ws).star()) | ref(ws).star()) &
           (letter('var') & word('var').star()).flatten())

@@ -54,7 +54,11 @@ class LinearProblem {
     map[v] = map.length + 1;
     return map;
   });
-
+  late Map<String, int> eqnMap = {for (final eqn in equations) eqn.leftHandSide}
+      .fold(<String, int>{}, (map, v) {
+    map[v] = map.length + 1;
+    return map;
+  });
   Pointer<Int8> registerString(String str) {
     if (strings[str] == null) {
       strings[str] = Utf8.toUtf8(str);
@@ -86,9 +90,10 @@ class LinearProblem {
     GLPK.glp_add_rows(lp, equationConstraints.length);
     for (var row = 0; row < equationConstraints.length; row++) {
       final r = equationConstraints[row];
-      GLPK.glp_set_row_name(lp, row + 1, registerString(r.variable));
+      GLPK.glp_set_row_name(
+          lp, eqnMap[r.variable]!, registerString(r.variable));
       GLPK.glp_set_row_bnds(
-          lp, row + 1, r.boundType, r.lowerBound, r.upperBound);
+          lp, eqnMap[r.variable]!, r.boundType, r.lowerBound, r.upperBound);
     }
 
     GLPK.glp_add_cols(lp, variableConstraints.length);
@@ -104,11 +109,13 @@ class LinearProblem {
     }
     var entryNum = 0;
     for (var i = 0; i < equations.length; i++) {
-      for (var j = 0; j < equations[i].terms.length; j++) {
+      final eqn = equations[i];
+      for (var j = 0; j < eqn.terms.length; j++) {
+        final term = eqn.terms[j];
         entryNum++;
-        ia[entryNum] = i + 1;
-        ja[entryNum] = varMap[equations[i].terms[j].variable]!;
-        ar[entryNum] = equations[i].terms[j].multiplier;
+        ia[entryNum] = eqnMap[eqn.leftHandSide]!;
+        ja[entryNum] = varMap[term.variable]!;
+        ar[entryNum] = term.multiplier;
       }
     }
 
