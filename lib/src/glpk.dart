@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:ffi/ffi.dart';
 
@@ -6,7 +7,9 @@ import 'bindings/ffi.dart';
 export 'bindings/ffi.dart';
 export 'package:ffi/ffi.dart';
 
-final GLPK = GLPK_C(DynamicLibrary.open('/usr/local/lib/libglpk.so'));
+final GLPK = GLPK_C(Platform.isLinux
+    ? DynamicLibrary.open('/usr/local/lib/libglpk.so')
+    : DynamicLibrary.open('/usr/local/lib/libglpk.dylib'));
 
 class LinearProblem {
   LinearProblem({
