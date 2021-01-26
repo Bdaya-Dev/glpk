@@ -54,6 +54,33 @@ r = x1 + x2
   assert(solution2.objectiveValue.isCloseTo(1));
   assert(solution2.termMap['x1']!.isCloseTo(0));
   assert(solution2.termMap['x2']!.isCloseTo(1));
+
+  final tictactoe = LinearProblem.parse('''example
+
+z = v
+
+p = v - .5*x1 - 1*x2 - 1*x3
+q = v - 1*x1 - .5*x2 - 1*x3
+r = v - 1*x1 - 1*x2 - .5*x3
+s = x1 + x2 + x3
+
+-inf < p < 0
+-inf < q < 0
+-inf < r < 0
+1 < s < 1
+
+-inf < v < inf
+0 < x1 < inf
+0 < x2 < inf
+0 < x3 < inf
+''');
+  print(tictactoe);
+  final tictactoeSolution = tictactoe.solve();
+  print(tictactoeSolution);
+  assert(tictactoeSolution.objectiveValue.isCloseTo(1));
+  assert(tictactoeSolution.termMap['x1']!.isCloseTo(1 / 3));
+  assert(tictactoeSolution.termMap['x2']!.isCloseTo(1 / 3));
+  assert(tictactoeSolution.termMap['x3']!.isCloseTo(1 / 3));
 }
 
 extension on double {
