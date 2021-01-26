@@ -111,10 +111,13 @@ class LinearProblem {
     for (var i = 0; i < equations.length; i++) {
       final eqn = equations[i];
       for (var j = 0; j < eqn.terms.length; j++) {
-        final term = eqn.terms[j];
         entryNum++;
-        ia[entryNum] = eqnMap[eqn.leftHandSide]!;
-        ja[entryNum] = varMap[term.variable]!;
+        final term = eqn.terms[j];
+        final eqnNum = eqnMap[eqn.leftHandSide]!;
+        final varNum = varMap[term.variable]!;
+
+        ia[entryNum] = eqnNum;
+        ja[entryNum] = varNum;
         ar[entryNum] = term.multiplier;
       }
     }
@@ -124,9 +127,8 @@ class LinearProblem {
     final result = LinearProgramResult(
       GLPK.glp_get_obj_val(lp),
       [
-        for (var col = 0; col < variableConstraints.length; col++)
-          ResultTerm(variableConstraints[col].variable,
-              GLPK.glp_get_col_prim(lp, col + 1))
+        for (final v in varMap.keys)
+          ResultTerm(v, GLPK.glp_get_col_prim(lp, varMap[v]!))
       ],
     );
 
