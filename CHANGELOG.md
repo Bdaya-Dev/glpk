@@ -1,4 +1,4 @@
-## 0.1.0-nullsafety.1
+## 0.1.0-nullsafety.2
 
 - Update to work on MacOS
 
