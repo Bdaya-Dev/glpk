@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
+import 'package:glpk/src/parser.dart';
 
 import 'bindings/ffi.dart';
 export 'bindings/ffi.dart';
@@ -37,6 +38,8 @@ class LinearProblem {
                 LinearTerm(terms[i][n], varNames[n])
             ])
         ];
+  factory LinearProblem.parse(String program) =>
+      LinearProgramParser().parse(program).value;
   final String name;
   final List<LinearEquation> equations;
   final List<LinearConstraint> equationConstraints;

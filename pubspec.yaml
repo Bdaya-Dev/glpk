@@ -7,6 +7,7 @@ environment:
 
 dependencies:
   ffi: ^0.2.0-nullsafety.1
+  petitparser: ^4.0.0-nullsafety.1
 
 dev_dependencies:
   ffigen: 2.0.0-dev.5
