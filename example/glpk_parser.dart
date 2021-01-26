@@ -3,7 +3,7 @@ import 'package:glpk/glpk.dart';
 void main() {
   final problem = LinearProblem.parse('''example
 
-z = 10x1 + 6x2 + 4x3
+z = 10x1 - 6x2 + 4x3
 
 p = 1x1 + 1x2 + 1x3
 q = 10x1 + 4x2 + 5x3

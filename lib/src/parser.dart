@@ -13,15 +13,16 @@ class LinearProgramDefinition extends GrammarDefinition {
     return ref(linearProgram).cast();
   }
 
-  Parser<LinearProblem> linearProgram() => (word('name').plus() &
-          char('\n') &
+  Parser<LinearProblem> linearProgram() => (word('name').plus().flatten() &
+          string('\n\n', 'double newline') &
           ref(optimization) &
-          char('\n') &
+          string('\n\n', 'double newline') &
           ref(equations) &
-          char('\n') &
+          string('\n\n', 'double newline') &
           ref(equationConstraints) &
-          char('\n') &
+          string('\n\n', 'double newline') &
           ref(variableConstraints) &
+          char('\n') &
           endOfInput())
       .map((l) => LinearProblem(
           name: l[0],
@@ -32,39 +33,68 @@ class LinearProgramDefinition extends GrammarDefinition {
 
   Parser<LinearEquation> optimization() => ref(linearEquation).cast();
   Parser<LinearEquation> linearEquation() => (letter('lhs').plus().flatten() &
-          char('=') &
+          char('=').surroundedBy(ref(ws).star()) &
           ref(linearTerm)
-              .separatedBy(ref(ws) | char('+'), includeSeparators: false)
-              .cast<List<LinearTerm>>())
-      .map((l) => LinearEquation(l[0], l[2]));
-  Parser<LinearTerm> linearTerm() =>
-      (doubleParser('coefficient') & ref(ws) & letter('var').plus().flatten())
-          .map((l) => LinearTerm(l[0], l[2]));
+              .separatedBy(
+                  (char('+').surroundedBy(ref(ws).plus()).flatten() |
+                      ref(ws).plus().flatten()),
+                  includeSeparators: false)
+              .castList<LinearTerm>())
+      .map((l) => LinearEquation(l[0], l[2]))
+      .debug();
+  Parser<LinearTerm> linearTerm() => (doubleParser('coefficient') &
+          (char('*').surroundedBy(ref(ws).star()) | ref(ws).star()) &
+          (letter('var') & word('var').star()).flatten())
+      .map((l) => LinearTerm(l[0] ?? 1, l[2]));
   Parser<List<LinearEquation>> equations() => ref(linearEquation)
       .separatedBy(char('\n'), includeSeparators: false)
-      .cast();
+      .castList();
   Parser<List<LinearConstraint>> equationConstraints() =>
       ref(constraints).cast();
   Parser<List<LinearConstraint>> variableConstraints() =>
       ref(constraints).cast();
-  Parser<List<LinearConstraint>> constraints() =>
-      ref(linearConstraint).plus().cast();
+  Parser<List<LinearConstraint>> constraints() => ref(linearConstraint)
+      .separatedBy(char('\n'), includeSeparators: false)
+      .castList();
   Parser<LinearConstraint> linearConstraint() => (doubleParser('lower bound') &
           ref(inequality) &
-          letter('var').plus().flatten() &
+          word('var').plus().flatten() &
           ref(inequality) &
           doubleParser('upper bound'))
       .map((l) => LinearConstraint(l[0], l[2], l[4]));
 
   Parser<double> doubleParser(String exp) =>
-      ((char('-').optional() & ref(ws) & digit(exp).plus()).flatten().map((s) =>
-                  double.parse(s.replaceAll(' ', '').replaceAll('\t', ''))) |
-              string('-inf', exp).map((s) => double.negativeInfinity) |
-              string('inf', exp).map((s) => double.infinity))
+      (string('-inf', exp).map((s) => double.negativeInfinity) |
+              string('inf', exp).map((s) => double.infinity) |
+              ((char('-') & ref(ws).star()).optional() &
+                      digit(exp).star() &
+                      char('.').optional() &
+                      digit(exp).star())
+                  .flatten()
+                  .map((s) {
+                final str = s.replaceAll(' ', '').replaceAll('\t', '').trim();
+                if (str.isEmpty) {
+                  return 1.0;
+                } else if (str == '-') {
+                  return -1.0;
+                }
+                return double.parse(str);
+              }))
           .cast();
-  Parser ws() => whitespace().plusLazy(pattern('\r\n') | word()).flatten();
+  Parser ws() => char('\t', 'whitespace') | char(' ', 'whitespace');
   Parser inequality() =>
       (char('>') | char('<') | string('>=') | string('<=') | char('='))
-          .plus()
+          .surroundedBy(ref(ws).plus())
           .flatten();
+}
+
+extension ParserHelpers<T> on Parser<T> {
+  Parser surroundedBy(Parser p) {
+    return p & this & p;
+  }
+
+  Parser<T> debug() => map((t) {
+        print(t);
+        return t;
+      });
 }

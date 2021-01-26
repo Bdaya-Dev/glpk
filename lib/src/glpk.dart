@@ -47,6 +47,13 @@ class LinearProblem {
   final LinearEquation optimization;
 
   Map<String, Pointer<Utf8>> strings = {};
+  late Map<String, int> varMap = {
+    for (final eqn in equations) ...eqn.terms.map((t) => t.variable),
+    ...optimization.terms.map((t) => t.variable),
+  }.fold(<String, int>{}, (map, v) {
+    map[v] = map.length + 1;
+    return map;
+  });
 
   Pointer<Int8> registerString(String str) {
     if (strings[str] == null) {
@@ -87,22 +94,20 @@ class LinearProblem {
     GLPK.glp_add_cols(lp, variableConstraints.length);
     for (var col = 0; col < variableConstraints.length; col++) {
       final c = variableConstraints[col];
-      GLPK.glp_set_col_name(lp, col + 1, registerString(c.variable));
+      GLPK.glp_set_col_name(
+          lp, varMap[c.variable]!, registerString(c.variable));
       GLPK.glp_set_col_bnds(
-          lp, col + 1, c.boundType, c.lowerBound, c.upperBound);
-      GLPK.glp_set_obj_coef(
-          lp,
-          col + 1,
-          optimization.terms
-              .firstWhere((t) => t.variable == c.variable)
-              .multiplier);
+          lp, varMap[c.variable]!, c.boundType, c.lowerBound, c.upperBound);
+      final terms = optimization.terms.where((t) => t.variable == c.variable);
+      GLPK.glp_set_obj_coef(lp, varMap[c.variable]!,
+          terms.isNotEmpty ? terms.first.multiplier : 0);
     }
     var entryNum = 0;
     for (var i = 0; i < equations.length; i++) {
       for (var j = 0; j < equations[i].terms.length; j++) {
         entryNum++;
         ia[entryNum] = i + 1;
-        ja[entryNum] = j + 1;
+        ja[entryNum] = varMap[equations[i].terms[j].variable]!;
         ar[entryNum] = equations[i].terms[j].multiplier;
       }
     }
@@ -142,6 +147,9 @@ class LinearProgramResult {
   LinearProgramResult(this.objectiveValue, this.terms);
   final double objectiveValue;
   final List<ResultTerm> terms;
+  late Map<String, double> termMap = {
+    for (final term in terms) term.variable: term.value
+  };
   @override
   String toString() {
     return '''Result:
@@ -167,7 +175,7 @@ class LinearEquation {
   final List<LinearTerm> terms;
   @override
   String toString() {
-    return '$leftHandSide = ${terms.map((t) => t.toString().padLeft(6)).join('')}';
+    return '$leftHandSide = ${terms.map((t) => t.toString()).join(' + ')}';
   }
 }
 
@@ -180,7 +188,7 @@ class LinearTerm {
   final double multiplier;
   @override
   String toString() {
-    return '$multiplier$variable';
+    return '$multiplier*$variable';
   }
 }
 
@@ -205,7 +213,7 @@ class LinearConstraint {
                       : GLP_DB;
   @override
   String toString() {
-    return '$lowerBound $variable $upperBound ${boundType.boundString}';
+    return '$lowerBound < $variable < $upperBound ${boundType.boundString}';
   }
 }
 
