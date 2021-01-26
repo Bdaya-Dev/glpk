@@ -31,6 +31,29 @@ r = x1 + x2
   assert(solution.objectiveValue.isCloseTo(6 / 7));
   assert(solution.termMap['x1']!.isCloseTo(2 / 7));
   assert(solution.termMap['x2']!.isCloseTo(5 / 7));
+
+  final problem2 = LinearProblem.parse('''example
+
+z = v
+
+p = v - 5*x1 - 3*x2
+q = v - 1*x2
+r = x1 + x2
+
+-inf < p < 0
+-inf < q < 0
+1 < r < 1
+
+-inf < v < inf
+0 < x1 < inf
+0 < x2 < inf
+''');
+  print(problem2);
+  final solution2 = problem2.solve();
+  print(solution2);
+  assert(solution2.objectiveValue.isCloseTo(1));
+  assert(solution2.termMap['x1']!.isCloseTo(0));
+  assert(solution2.termMap['x2']!.isCloseTo(1));
 }
 
 extension on double {
