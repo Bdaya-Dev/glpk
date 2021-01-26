@@ -1,3 +1,7 @@
+## 0.1.0-nullsafety.3
+
+- Add basic parser
+
 ## 0.1.0-nullsafety.2
 
 - Update to work on MacOS
