@@ -1,27 +1,27 @@
 name: glpk
 description: A simple command-line application.
-version: 0.1.0-nullsafety.1
+version: 0.1.0-nullsafety.2
 homepage: https://github.com/TimWhiting/glpk
 environment:
-  sdk: '>=2.12.0-230.0.dev <3.0.0'
+  sdk: ">=2.12.0-230.0.dev <3.0.0"
 
 dependencies:
   ffi: ^0.2.0-nullsafety.1
 
 dev_dependencies:
-  ffigen: 2.0.0-dev.5 
+  ffigen: 2.0.0-dev.5
 
 ffigen:
-  output: 'lib/src/bindings/ffi.dart'
+  output: "lib/src/bindings/ffi.dart"
   headers:
     entry-points:
-      - '/usr/local/include/glpk.h'
+      - "/usr/local/include/glpk.h"
     include-directives:
-      - '/usr/local/include/*'
+      - "/usr/local/include/*"
   structs:
     rename:
-      '__(.*)' : '$1'
-  name: 'GLPK_C'
-  description: 'Bindings to GLPK (http://www.gnu.org/software/glpk/)'
+      "__(.*)": "$1"
+  name: "GLPK_C"
+  description: "Bindings to GLPK (http://www.gnu.org/software/glpk/)"
   array-workaround: true
   sort: true

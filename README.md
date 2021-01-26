@@ -1,5 +1,8 @@
 An Integer Programming Library using C bindings to the glpk library
 
+Download and Install the GLPK library from here:
+https://www.gnu.org/software/glpk/glpk.html#downloading
+
 Example Problem:
 ```dart
 import 'package:glpk/glpk.dart';
