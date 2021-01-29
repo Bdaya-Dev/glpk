@@ -1,3 +1,7 @@
+## 0.1.0-nullsafety.7
+
+- Works with js library, removed git submodule
+
 ## 0.1.0-nullsafety.6
 
 - Update to comply with Licenses for GLPK
