@@ -1,4 +1,5 @@
 import 'package:glpk/src/bindings/glpk.dart';
+import 'package:js/js.dart';
 import 'js.dart' as js;
 
 GLPK getGLPK() => GLPKJS();
@@ -81,5 +82,5 @@ class GLPKJS extends GLPK {
       js.glp_set_row_name(lp, i, name);
 
   @override
-  void disableOutput() => js.glp_term_out(js.GLP_OFF);
+  void disableOutput() => js.glp_set_print_func(allowInterop((s) {}));
 }
