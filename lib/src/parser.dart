@@ -1,6 +1,5 @@
+import 'package:glpk/src/problem.dart';
 import 'package:petitparser/petitparser.dart';
-
-import '../glpk.dart';
 
 class LinearProgramParser extends GrammarParser {
   LinearProgramParser() : super(LinearProgramDefinition());

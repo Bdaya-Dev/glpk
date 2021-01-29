@@ -1,16 +1,6 @@
-import 'dart:ffi';
-import 'dart:io';
-
-import 'package:ffi/ffi.dart';
 import 'package:glpk/src/parser.dart';
 
-import 'bindings/ffi.dart';
-export 'bindings/ffi.dart';
-export 'package:ffi/ffi.dart';
-
-final GLPK = GLPK_C(Platform.isLinux
-    ? DynamicLibrary.open('/usr/local/lib/libglpk.so')
-    : DynamicLibrary.open('/usr/local/lib/libglpk.dylib'));
+import 'bindings/glpk.dart';
 
 class LinearProblem {
   LinearProblem({
@@ -27,13 +17,13 @@ class LinearProblem {
       required List<List<double>> terms,
       required this.equationConstraints,
       required this.variableConstraints})
-      : optimization = LinearEquation(name, [
+      : optimization = LinearEquation(equationNames[0], [
           for (var n = 0; n < varNames.length; n++)
             LinearTerm(terms[0][n], varNames[n])
         ]),
         equations = [
           for (var i = 1; i < equationNames.length; i++)
-            LinearEquation(name, [
+            LinearEquation(equationNames[i], [
               for (var n = 0; n < varNames.length; n++)
                 LinearTerm(terms[i][n], varNames[n])
             ])
@@ -46,7 +36,6 @@ class LinearProblem {
   final List<LinearConstraint> variableConstraints;
   final LinearEquation optimization;
 
-  Map<String, Pointer<Utf8>> strings = {};
   late Map<String, int> varMap = {
     for (final eqn in equations) ...eqn.terms.map((t) => t.variable),
     ...optimization.terms.map((t) => t.variable),
@@ -59,52 +48,36 @@ class LinearProblem {
     map[v] = map.length + 1;
     return map;
   });
-  Pointer<Int8> registerString(String str) {
-    if (strings[str] == null) {
-      strings[str] = Utf8.toUtf8(str);
-    }
-    return strings[str]!.cast();
-  }
-
-  void cleanup() {
-    final keys = [...strings.keys];
-    for (final str in keys) {
-      free(strings[str]!.cast<Utf8>());
-      strings.remove(str);
-    }
-  }
 
   late int numTerms =
       equations.map((e) => e.terms.length).reduce((i, j) => i + j);
 
   LinearProgramResult solve() {
-    final lp = GLPK.glp_create_prob();
+    final lp = glpk.glp_create_prob();
 
-    GLPK.glp_set_prob_name(lp, registerString(name));
-    GLPK.glp_set_obj_dir(lp, GLP_MAX);
+    glpk.glp_set_prob_name(lp, name);
+    glpk.glp_set_obj_dir(lp, glpk.MAXIMIZE);
 
-    final ia = allocate<Int32>(count: 1 + numTerms);
-    final ja = allocate<Int32>(count: 1 + numTerms);
-    final ar = allocate<Double>(count: 1 + numTerms);
+    final ia = List.filled(1 + numTerms, 0);
+    final ja = List.filled(1 + numTerms, 0);
+    final ar = List.filled(1 + numTerms, 0.0);
 
-    GLPK.glp_add_rows(lp, equationConstraints.length);
+    glpk.glp_add_rows(lp, equationConstraints.length);
     for (var row = 0; row < equationConstraints.length; row++) {
       final r = equationConstraints[row];
-      GLPK.glp_set_row_name(
-          lp, eqnMap[r.variable]!, registerString(r.variable));
-      GLPK.glp_set_row_bnds(
+      glpk.glp_set_row_name(lp, eqnMap[r.variable]!, r.variable);
+      glpk.glp_set_row_bnds(
           lp, eqnMap[r.variable]!, r.boundType, r.lowerBound, r.upperBound);
     }
 
-    GLPK.glp_add_cols(lp, variableConstraints.length);
+    glpk.glp_add_cols(lp, variableConstraints.length);
     for (var col = 0; col < variableConstraints.length; col++) {
       final c = variableConstraints[col];
-      GLPK.glp_set_col_name(
-          lp, varMap[c.variable]!, registerString(c.variable));
-      GLPK.glp_set_col_bnds(
+      glpk.glp_set_col_name(lp, varMap[c.variable]!, c.variable);
+      glpk.glp_set_col_bnds(
           lp, varMap[c.variable]!, c.boundType, c.lowerBound, c.upperBound);
       final terms = optimization.terms.where((t) => t.variable == c.variable);
-      GLPK.glp_set_obj_coef(lp, varMap[c.variable]!,
+      glpk.glp_set_obj_coef(lp, varMap[c.variable]!,
           terms.isNotEmpty ? terms.first.multiplier : 0);
     }
     var entryNum = 0;
@@ -122,18 +95,18 @@ class LinearProblem {
       }
     }
 
-    GLPK.glp_load_matrix(lp, numTerms, ia, ja, ar);
-    GLPK.glp_simplex(lp, nullptr);
+    glpk.glp_load_matrix(lp, numTerms, ia, ja, ar);
+    glpk.glp_simplex(lp);
     final result = LinearProgramResult(
-      GLPK.glp_get_obj_val(lp),
+      glpk.glp_get_obj_val(lp),
       [
         for (final v in varMap.keys)
-          ResultTerm(v, GLPK.glp_get_col_prim(lp, varMap[v]!))
+          ResultTerm(v, glpk.glp_get_col_prim(lp, varMap[v]!))
       ],
     );
 
-    GLPK.glp_delete_prob(lp);
-    cleanup();
+    glpk.glp_delete_prob(lp);
+    glpk.cleanup();
     return result;
   }
 
@@ -212,14 +185,14 @@ class LinearConstraint {
           lowerBound > upperBound
       ? throw Exception('Invalid Constraint $this')
       : lowerBound.isInfinite && lowerBound.isNegative && upperBound.isInfinite
-          ? GLP_FR
+          ? glpk.FREE
           : lowerBound.isInfinite && lowerBound.isNegative
-              ? GLP_UP
+              ? glpk.UPPER_BOUNDED
               : upperBound.isInfinite
-                  ? GLP_LO
+                  ? glpk.LOWER_BOUNDED
                   : upperBound == lowerBound
-                      ? GLP_FX
-                      : GLP_DB;
+                      ? glpk.FIXED
+                      : glpk.DOUBLE_BOUNDED;
   @override
   String toString() {
     return '$lowerBound < $variable < $upperBound ${boundType.boundString}';
@@ -228,18 +201,21 @@ class LinearConstraint {
 
 extension on int {
   String get boundString {
-    switch (this) {
-      case GLP_FR:
-        return 'Free Variable';
-      case GLP_UP:
-        return 'Upper Bounded';
-      case GLP_LO:
-        return 'Lower Bounded';
-      case GLP_FX:
-        return 'Fixed Variable';
-      case GLP_DB:
-        return 'Double Bounded';
+    if (this == glpk.FREE) {
+      return 'Free Variable';
     }
-    return 'No Bound';
+    if (this == glpk.UPPER_BOUNDED) {
+      return 'Upper Bounded';
+    }
+    if (this == glpk.LOWER_BOUNDED) {
+      return 'Lower Bounded';
+    }
+    if (this == glpk.FIXED) {
+      return 'Fixed Variable';
+    }
+    if (this == glpk.DOUBLE_BOUNDED) {
+      return 'Double Bounded';
+    }
+    return 'Unknown Bound Constraint';
   }
 }

@@ -1,1 +1,2 @@
-export 'src/glpk.dart';
+export 'src/problem.dart';
+export 'src/bindings/glpk.dart';

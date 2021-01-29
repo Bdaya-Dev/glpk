@@ -1,41 +1,35 @@
-import 'dart:ffi';
-
 import 'package:glpk/glpk.dart';
 
-extension on String {
-  Pointer<Utf8> get utf8 => Utf8.toUtf8(this);
-}
-
 void main(List<String> arguments) {
-  final lp = GLPK.glp_create_prob();
+  glpk.disableOutput();
+  final lp = glpk.glp_create_prob();
 
-  GLPK.glp_set_prob_name(lp, 'example'.utf8.cast());
-  GLPK.glp_set_obj_dir(lp, GLP_MAX);
-  final ia = allocate<Int32>(count: 1 + 1000);
-  final ja = allocate<Int32>(count: 1 + 1000);
-  final ar = allocate<Double>(count: 1 + 1000);
+  glpk.glp_set_prob_name(lp, 'example');
+  glpk.glp_set_obj_dir(lp, glpk.MAXIMIZE);
+  final ia = List.filled(1 + 1000, 0);
+  final ja = List.filled(1 + 1000, 0);
+  final ar = List.filled(1 + 1000, 0.0);
   double z;
   double x1;
   double x2;
   double x3;
-  GLPK.glp_add_rows(lp, 3);
-
-  GLPK.glp_set_row_name(lp, 1, 'p'.utf8.cast());
-  GLPK.glp_set_row_bnds(lp, 1, GLP_UP, 0.0, 100.0);
-  GLPK.glp_set_row_name(lp, 2, 'q'.utf8.cast());
-  GLPK.glp_set_row_bnds(lp, 2, GLP_UP, 0.0, 600.0);
-  GLPK.glp_set_row_name(lp, 3, 'r'.utf8.cast());
-  GLPK.glp_set_row_bnds(lp, 3, GLP_UP, 0.0, 300.0);
-  GLPK.glp_add_cols(lp, 3);
-  GLPK.glp_set_col_name(lp, 1, 'x1'.utf8.cast());
-  GLPK.glp_set_col_bnds(lp, 1, GLP_LO, 0.0, 0.0);
-  GLPK.glp_set_obj_coef(lp, 1, 10.0);
-  GLPK.glp_set_col_name(lp, 2, 'x2'.utf8.cast());
-  GLPK.glp_set_col_bnds(lp, 2, GLP_LO, 0.0, 0.0);
-  GLPK.glp_set_obj_coef(lp, 2, 6.0);
-  GLPK.glp_set_col_name(lp, 3, 'x3'.utf8.cast());
-  GLPK.glp_set_col_bnds(lp, 3, GLP_LO, 0.0, 0.0);
-  GLPK.glp_set_obj_coef(lp, 3, 4.0);
+  glpk.glp_add_rows(lp, 3);
+  glpk.glp_set_row_name(lp, 1, 'p');
+  glpk.glp_set_row_bnds(lp, 1, glpk.UPPER_BOUNDED, 0.0, 100.0);
+  glpk.glp_set_row_name(lp, 2, 'q');
+  glpk.glp_set_row_bnds(lp, 2, glpk.UPPER_BOUNDED, 0.0, 600.0);
+  glpk.glp_set_row_name(lp, 3, 'r');
+  glpk.glp_set_row_bnds(lp, 3, glpk.UPPER_BOUNDED, 0.0, 300.0);
+  glpk.glp_add_cols(lp, 3);
+  glpk.glp_set_col_name(lp, 1, 'x1');
+  glpk.glp_set_col_bnds(lp, 1, glpk.LOWER_BOUNDED, 0.0, 0.0);
+  glpk.glp_set_obj_coef(lp, 1, 10.0);
+  glpk.glp_set_col_name(lp, 2, 'x2');
+  glpk.glp_set_col_bnds(lp, 2, glpk.LOWER_BOUNDED, 0.0, 0.0);
+  glpk.glp_set_obj_coef(lp, 2, 6.0);
+  glpk.glp_set_col_name(lp, 3, 'x3');
+  glpk.glp_set_col_bnds(lp, 3, glpk.LOWER_BOUNDED, 0.0, 0.0);
+  glpk.glp_set_obj_coef(lp, 3, 4.0);
   ia[1] = 1;
   ja[1] = 1;
   ar[1] = 1.0; // a[1,1]
@@ -64,12 +58,12 @@ void main(List<String> arguments) {
   ia[9] = 3;
   ja[9] = 3;
   ar[9] = 6.0;
-  GLPK.glp_load_matrix(lp, 9, ia, ja, ar);
-  GLPK.glp_simplex(lp, nullptr);
-  z = GLPK.glp_get_obj_val(lp);
-  x1 = GLPK.glp_get_col_prim(lp, 1);
-  x2 = GLPK.glp_get_col_prim(lp, 2);
-  x3 = GLPK.glp_get_col_prim(lp, 3);
+  glpk.glp_load_matrix(lp, 9, ia, ja, ar);
+  glpk.glp_simplex(lp);
+  z = glpk.glp_get_obj_val(lp);
+  x1 = glpk.glp_get_col_prim(lp, 1);
+  x2 = glpk.glp_get_col_prim(lp, 2);
+  x3 = glpk.glp_get_col_prim(lp, 3);
   print('\nz = $z; x1 = $x1; x2 = $x2, x3 = $x3');
-  GLPK.glp_delete_prob(lp);
+  glpk.glp_delete_prob(lp);
 }
