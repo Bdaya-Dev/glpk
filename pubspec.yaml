@@ -1,11 +1,12 @@
 name: glpk
 description: A simple command-line application.
-version: 0.1.0-nullsafety.5
+version: 0.1.0-nullsafety.6
 homepage: https://github.com/TimWhiting/glpk
 environment:
   sdk: ">=2.12.0-230.0.dev <3.0.0"
 
 dependencies:
+  js: ^0.6.3-nullsafety.3
   ffi: ^0.2.0-nullsafety.1
   petitparser: ">3.0.0 <4.0.0-nullsafety.2"
 

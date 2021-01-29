@@ -1,3 +1,7 @@
+## 0.1.0-nullsafety.6
+
+- Update to comply with Licenses for GLPK
+
 ## 0.1.0-nullsafety.5
 
 - Fix some ordering issues
