@@ -67,7 +67,7 @@ class GLPKJS extends GLPK {
       js.glp_set_prob_name(lp, name);
 
   @override
-  void glp_simplex(Object lp) => js.glp_simplex(lp);
+  void glp_simplex(Object lp) => js.glp_simplex(lp, null);
   @override
   void glp_add_rows(Object lp, int length) => js.glp_add_rows(lp, length);
 
