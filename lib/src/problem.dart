@@ -116,11 +116,11 @@ class LinearProblem {
   Objective: $optimization
   
   subject to: 
-\t${equations.map((t) => t.toString() + '\n\t').join('')}
+    ${equations.map((t) => t.toString() + '\n    ').join('')}
 
   bounded by:
-\t${equationConstraints.map((t) => t.toString() + '\n\t').join('')}
-\t${variableConstraints.map((t) => t.toString() + '\n\t').join('')}
+    ${equationConstraints.map((t) => t.toString() + '\n    ').join('')}
+    ${variableConstraints.map((t) => t.toString() + '\n    ').join('')}
 ''';
   }
 }
@@ -136,7 +136,7 @@ class LinearProgramResult {
   String toString() {
     return '''Result:
   Objective: $objectiveValue
-\t${terms.map((t) => t.toString() + '\n\t').join('')}
+    ${terms.map((t) => t.toString() + '\n    ').join('')}
 ''';
   }
 }
