@@ -1,5 +1,9 @@
 ## 0.2.0-nullsafety.0
 
+- Fix concurrency / double free issue
+
+## 0.2.0-nullsafety.0
+
 - Works with latest ffi
 
 ## 0.1.0-nullsafety.7

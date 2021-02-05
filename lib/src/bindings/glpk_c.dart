@@ -16,8 +16,12 @@ class GLPKC extends GLPK {
       : DynamicLibrary.open('/usr/local/lib/libglpk.dylib'));
   final Map<String, Pointer<Utf8>> _strings = {};
   final List<Pointer> _arrayList = [];
+
   @pragma('vm:prefer-inline')
   Pointer<Int8> registerString(String str) {
+    if (cleanupHappening) {
+      throw Exception('Cannot use glpk concurrently');
+    }
     if (_strings[str] == null) {
       _strings[str] = Utf8.toUtf8(str);
     }
@@ -26,6 +30,9 @@ class GLPKC extends GLPK {
 
   @pragma('vm:prefer-inline')
   Pointer<Int32> registerInt32List(List<int> list) {
+    if (cleanupHappening) {
+      throw Exception('Cannot use glpk concurrently');
+    }
     final l = malloc.allocate<Int32>(sizeOf<Int32>() * list.length);
     l.asTypedList(list.length).setAll(0, list);
     _arrayList.add(l);
@@ -34,22 +41,30 @@ class GLPKC extends GLPK {
 
   @pragma('vm:prefer-inline')
   Pointer<Double> registerDoubleList(List<double> list) {
+    if (cleanupHappening) {
+      throw Exception('Cannot use glpk concurrently');
+    }
     final l = malloc.allocate<Double>(sizeOf<Double>() * list.length);
     l.asTypedList(list.length).setAll(0, list);
     _arrayList.add(l);
     return l;
   }
 
+  bool cleanupHappening = false;
+
   @override
   void cleanup() {
+    cleanupHappening = true;
     final keys = [..._strings.keys];
     for (final str in keys) {
       malloc.free(_strings[str]!.cast<Utf8>());
-      _strings.remove(str);
     }
-    for (final p in _arrayList) {
+    _strings.clear();
+    for (final p in [..._arrayList]) {
       malloc.free(p);
     }
+    _arrayList.clear();
+    cleanupHappening = false;
   }
 
   @override
