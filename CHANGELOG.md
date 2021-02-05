@@ -1,3 +1,7 @@
+## 0.2.0-nullsafety.2
+
+- Loosen constraints on petitparser again
+
 ## 0.2.0-nullsafety.1
 
 - Fix concurrency / double free issue
