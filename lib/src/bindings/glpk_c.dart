@@ -26,7 +26,7 @@ class GLPKC extends GLPK {
 
   @pragma('vm:prefer-inline')
   Pointer<Int32> registerInt32List(List<int> list) {
-    final l = allocate<Int32>(count: list.length);
+    final l = malloc.allocate<Int32>(sizeOf<Int32>() * list.length);
     l.asTypedList(list.length).setAll(0, list);
     _arrayList.add(l);
     return l;
@@ -34,7 +34,7 @@ class GLPKC extends GLPK {
 
   @pragma('vm:prefer-inline')
   Pointer<Double> registerDoubleList(List<double> list) {
-    final l = allocate<Double>(count: list.length);
+    final l = malloc.allocate<Double>(sizeOf<Double>() * list.length);
     l.asTypedList(list.length).setAll(0, list);
     _arrayList.add(l);
     return l;
@@ -44,11 +44,11 @@ class GLPKC extends GLPK {
   void cleanup() {
     final keys = [..._strings.keys];
     for (final str in keys) {
-      free(_strings[str]!.cast<Utf8>());
+      malloc.free(_strings[str]!.cast<Utf8>());
       _strings.remove(str);
     }
     for (final p in _arrayList) {
-      free(p);
+      malloc.free(p);
     }
   }
 
