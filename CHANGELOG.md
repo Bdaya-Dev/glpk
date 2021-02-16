@@ -1,3 +1,8 @@
+## 0.2.0-nullsafety.3
+
+- Allow location override for dynamic library loading
+- Update to latest `package:ffi` and `package:ffigen`
+
 ## 0.2.0-nullsafety.2
 
 - Loosen constraints on petitparser again
