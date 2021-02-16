@@ -31,9 +31,9 @@ r = x1 + x2
       print(problem);
       final solution = problem.solve();
       print(solution);
-      assert(solution.objectiveValue.isCloseTo(6 / 7));
-      assert(solution.termMap['x1']!.isCloseTo(2 / 7));
-      assert(solution.termMap['x2']!.isCloseTo(5 / 7));
+      expect(solution.objectiveValue.isCloseTo(6 / 7), true);
+      expect(solution.termMap['x1']!.isCloseTo(2 / 7), true);
+      expect(solution.termMap['x2']!.isCloseTo(5 / 7), true);
 
       final problem2 = LinearProblem.parse('''example
 
@@ -54,9 +54,9 @@ r = x1 + x2
       print(problem2);
       final solution2 = problem2.solve();
       print(solution2);
-      assert(solution2.objectiveValue.isCloseTo(1));
-      assert(solution2.termMap['x1']!.isCloseTo(0));
-      assert(solution2.termMap['x2']!.isCloseTo(1));
+      expect(solution2.objectiveValue.isCloseTo(1), true);
+      expect(solution2.termMap['x1']!.isCloseTo(0), true);
+      expect(solution2.termMap['x2']!.isCloseTo(1), true);
 
       final tictactoe = LinearProblem.parse('''example
 
@@ -80,10 +80,10 @@ s = x1 + x2 + x3
       print(tictactoe);
       final tictactoeSolution = tictactoe.solve();
       print(tictactoeSolution);
-      assert(tictactoeSolution.objectiveValue.isCloseTo(1));
-      assert(tictactoeSolution.termMap['x1']!.isCloseTo(1 / 3));
-      assert(tictactoeSolution.termMap['x2']!.isCloseTo(1 / 3));
-      assert(tictactoeSolution.termMap['x3']!.isCloseTo(1 / 3));
+      expect(tictactoeSolution.objectiveValue.isCloseTo(1), true);
+      expect(tictactoeSolution.termMap['x1']!.isCloseTo(1 / 3), true);
+      expect(tictactoeSolution.termMap['x2']!.isCloseTo(1 / 3), true);
+      expect(tictactoeSolution.termMap['x3']!.isCloseTo(1 / 3), true);
     });
   });
 }

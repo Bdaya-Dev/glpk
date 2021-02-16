@@ -11,9 +11,11 @@ export 'package:ffi/ffi.dart';
 GLPK getGLPK() => GLPKC();
 
 class GLPKC extends GLPK {
-  final glpk = GLPK_C(Platform.isLinux
-      ? DynamicLibrary.open('/usr/local/lib/libglpk.so')
-      : DynamicLibrary.open('/usr/local/lib/libglpk.dylib'));
+  final glpk = GLPK_C(glpkLibraryLocationOverride != null
+      ? DynamicLibrary.open(glpkLibraryLocationOverride!)
+      : Platform.isLinux
+          ? DynamicLibrary.open('/usr/local/lib/libglpk.so')
+          : DynamicLibrary.open('/usr/local/lib/libglpk.dylib'));
   final Map<String, Pointer<Utf8>> _strings = {};
   final List<Pointer> _arrayList = [];
 
@@ -23,7 +25,7 @@ class GLPKC extends GLPK {
       throw Exception('Cannot use glpk concurrently');
     }
     if (_strings[str] == null) {
-      _strings[str] = Utf8.toUtf8(str);
+      _strings[str] = str.toNativeUtf8();
     }
     return _strings[str]!.cast();
   }

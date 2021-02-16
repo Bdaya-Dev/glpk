@@ -2,6 +2,8 @@ import 'glpk_stub.dart'
     if (dart.library.io) 'glpk_c.dart'
     if (dart.library.js) 'glpk_js.dart';
 
+String? glpkLibraryLocationOverride;
+
 abstract class GLPK {
   static final GLPK instance = getGLPK();
 

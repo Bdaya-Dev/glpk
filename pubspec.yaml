@@ -7,15 +7,12 @@ environment:
 
 dependencies:
   js: ^0.6.3
-  ffi: ^0.3.0-nullsafety.1
+  ffi: ^1.0.0
   petitparser: ">=3.1.0 < 4.0.0-nullsafety.10"
 
 dev_dependencies:
   test: any
-# TODO: Readd once ffigen publishes new version
-#   ffigen: 2.0.0-dev.5
-
-
+  ffigen: ^2.0.0
 
 ffigen:
   output: "lib/src/bindings/ffi.dart"
