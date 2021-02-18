@@ -16,7 +16,7 @@ class LinearProgramDefinition extends GrammarDefinition {
               string('\n\n', 'double newline') &
               (stringIgnoreCase('max') | stringIgnoreCase('min'))
                   .trim()
-                  .optional() &
+                  .optionalWith('max') &
               ref(optimization) &
               string('\n\n', 'double newline') &
               ref(equations) &
@@ -33,7 +33,7 @@ class LinearProgramDefinition extends GrammarDefinition {
           equations: l[5],
           equationConstraints: l[7],
           variableConstraints: l[9],
-          maximize: (l[2] as String?)?.toLowerCase() == 'min' ? false : true,
+          maximize: (l[2] as String).toLowerCase() == 'min' ? false : true,
         ),
       );
 
