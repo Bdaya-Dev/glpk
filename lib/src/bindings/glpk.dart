@@ -8,6 +8,7 @@ abstract class GLPK {
   static final GLPK instance = getGLPK();
 
   int get MAXIMIZE;
+  int get MINIMIZE;
   int get DOUBLE_BOUNDED;
   int get FIXED;
   int get LOWER_BOUNDED;

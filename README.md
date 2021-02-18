@@ -30,6 +30,7 @@ void main() {
       LinearConstraint(0, 'x2', double.infinity),
       LinearConstraint(0, 'x3', double.infinity)
     ],
+    maximize: true,
   );
   print(problem);
   final solution = problem.solve();
@@ -61,6 +62,7 @@ void main() {
       LinearConstraint(0, 'x2', double.infinity),
       LinearConstraint(0, 'x3', double.infinity)
     ],
+    maximize: true,
   );
   print(problem);
   final solution = problem.solve();
@@ -76,7 +78,7 @@ Or a parser based approach:
 void main() {
   final problem = LinearProblem.parse('''example
 
-z = 10x1 - 6x2 + 4x3
+max z = 10x1 - 6x2 + 4x3
 
 p = 1x1 + 1x2 + 1x3
 q = 10x1 + 4x2 + 5x3

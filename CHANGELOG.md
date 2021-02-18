@@ -1,3 +1,8 @@
+## 0.2.1
+
+- Allow minimization or maximization problems (defaults to maximization)
+- Allow latest `package:petitparser`
+
 ## 0.2.0-nullsafety.3
 
 - Allow location override for dynamic library loading

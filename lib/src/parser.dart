@@ -13,22 +13,29 @@ class LinearProgramDefinition extends GrammarDefinition {
   }
 
   Parser<LinearProblem> linearProgram() => (word('name').plus().flatten() &
-          string('\n\n', 'double newline') &
-          ref(optimization) &
-          string('\n\n', 'double newline') &
-          ref(equations) &
-          string('\n\n', 'double newline') &
-          ref(equationConstraints) &
-          string('\n\n', 'double newline') &
-          ref(variableConstraints) &
-          char('\n') &
-          endOfInput())
-      .map((l) => LinearProblem(
+              string('\n\n', 'double newline') &
+              (stringIgnoreCase('max') | stringIgnoreCase('min'))
+                  .trim()
+                  .optional() &
+              ref(optimization) &
+              string('\n\n', 'double newline') &
+              ref(equations) &
+              string('\n\n', 'double newline') &
+              ref(equationConstraints) &
+              string('\n\n', 'double newline') &
+              ref(variableConstraints) &
+              char('\n') &
+              endOfInput())
+          .map(
+        (l) => LinearProblem(
           name: l[0],
-          optimization: l[2],
-          equations: l[4],
-          equationConstraints: l[6],
-          variableConstraints: l[8]));
+          optimization: l[3],
+          equations: l[5],
+          equationConstraints: l[7],
+          variableConstraints: l[9],
+          maximize: (l[2] as String?)?.toLowerCase() == 'min' ? false : true,
+        ),
+      );
 
   Parser<LinearEquation> optimization() => ref(linearEquation).cast();
   Parser<LinearEquation> linearEquation() =>

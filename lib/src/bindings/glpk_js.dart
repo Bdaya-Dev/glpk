@@ -21,6 +21,9 @@ class GLPKJS extends GLPK {
   int get MAXIMIZE => js.GLP_MAX;
 
   @override
+  int get MINIMIZE => js.GLP_MIN;
+
+  @override
   int get UPPER_BOUNDED => js.GLP_UP;
 
   @override

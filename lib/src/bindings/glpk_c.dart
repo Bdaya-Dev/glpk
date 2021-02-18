@@ -91,6 +91,10 @@ class GLPKC extends GLPK {
 
   @override
   @pragma('vm:prefer-inline')
+  int get MINIMIZE => GLP_MIN;
+
+  @override
+  @pragma('vm:prefer-inline')
   int get UPPER_BOUNDED => GLP_UP;
 
   @override

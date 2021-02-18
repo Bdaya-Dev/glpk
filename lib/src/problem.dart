@@ -9,6 +9,7 @@ class LinearProblem {
     required this.equations,
     required this.equationConstraints,
     required this.variableConstraints,
+    this.maximize = true,
   });
   LinearProblem.matrix(
       {required this.name,
@@ -16,7 +17,8 @@ class LinearProblem {
       required List<String> equationNames,
       required List<List<double>> terms,
       required this.equationConstraints,
-      required this.variableConstraints})
+      required this.variableConstraints,
+      this.maximize = true})
       : optimization = LinearEquation(equationNames[0], [
           for (var n = 0; n < varNames.length; n++)
             LinearTerm(terms[0][n], varNames[n])
@@ -35,6 +37,7 @@ class LinearProblem {
   final List<LinearConstraint> equationConstraints;
   final List<LinearConstraint> variableConstraints;
   final LinearEquation optimization;
+  final bool maximize;
 
   late Map<String, int> varMap = {
     for (final eqn in equations) ...eqn.terms.map((t) => t.variable),
@@ -56,7 +59,7 @@ class LinearProblem {
     final lp = glpk.glp_create_prob();
 
     glpk.glp_set_prob_name(lp, name);
-    glpk.glp_set_obj_dir(lp, glpk.MAXIMIZE);
+    glpk.glp_set_obj_dir(lp, maximize ? glpk.MAXIMIZE : glpk.MINIMIZE);
 
     final ia = List.filled(1 + numTerms, 0);
     final ja = List.filled(1 + numTerms, 0);

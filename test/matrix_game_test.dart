@@ -37,7 +37,7 @@ r = x1 + x2
 
       final problem2 = LinearProblem.parse('''example
 
-z = v
+max z = v
 
 p = v - 5*x1 - 3*x2
 q = v - 1*x2
